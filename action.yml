@@ -1,0 +1,34 @@
+name: 'Workflow Information'
+description: 'Return information about the named workflow on the specifed branch.'
+inputs:
+  name:
+    description: 'workflow name'
+    required: true
+  branch:
+    description: 'branch name'
+    required: true
+  repository:
+    description: 'repository name (owner/repo)'
+    required: true
+  token:
+    description: 'token to use for API requests'
+    required: true
+outputs:
+  running-jobs-count:
+    description: "The number of workflow jobs that are running on the specified branch."
+  last-build-sha:
+    description: "The commit SHA of the most recent build of this workflow on the specified branch."
+  workflow-id:
+    description: "The id of the specifed workflow."
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - '--name'
+    - ${{ inputs.name }}
+    - '--branch'
+    - ${{ inputs.branch }}
+    - '--repository'
+    - ${{ inputs.repository }}
+    - '--token'
+    - ${{ inputs.token }}
