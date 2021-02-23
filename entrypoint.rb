@@ -17,6 +17,7 @@ client.auto_paginate = true
 response = client.repository_workflow_runs(options[:repository], {:branch => options[:branch]})
 
 workflow_runs = response[:workflow_runs].select { |run| run[:name] == options[:name] }
+workflow_runs = workflow_runs.select { |run| run[:status] == 'completed' }
 
 last_build_sha_run = workflow_runs.max_by { |run| run[:run_number] }
 last_build_sha = last_build_sha_run[:head_sha]
