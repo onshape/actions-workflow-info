@@ -13,11 +13,17 @@ inputs:
   token:
     description: 'token to use for API requests'
     required: true
+  conclusion:
+    description: 'conclusion: action_required, cancelled, failure, neutral, success, skipped, stale, or timed_out'
+    default: ""
+  status:
+    description: 'status: queued, in_progress, or completed'
+    default: ""
 outputs:
   running-jobs-count:
     description: "The number of workflow jobs that are running on the specified branch."
   last-build-sha:
-    description: "The commit SHA of the most recent build of this workflow on the specified branch."
+    description: "The commit SHA of the most recent build of this workflow on the specified branch optionally filtered by status and conclusion"
   workflow-id:
     description: "The id of the specifed workflow."
 runs:
@@ -32,3 +38,7 @@ runs:
     - ${{ inputs.repository }}
     - '--token'
     - ${{ inputs.token }}
+    - '--conclusion'
+    - ${{ inputs.conclusion }}
+    - '--status'
+    - ${{ inputs.status }}
