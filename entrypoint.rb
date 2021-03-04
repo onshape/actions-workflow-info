@@ -9,6 +9,10 @@ OptionParser.new do |opt|
   opt.on('--branch BRANCH') { |o| options[:branch] = o }
   opt.on('--repository REPOSITORY') { |o| options[:repository] = o }
   opt.on('--token TOKEN') { |o| options[:token] = o }
+  options[:conclusion] = ""
+  opt.on('--conclusion CONCLUSION') { |o| options[:conclusion] = o }
+  options[:status] = ""
+  opt.on('--status STATUS') { |o| options[:status] = o }
 end.parse!
 
 client = Octokit::Client.new(:access_token => options[:token])
@@ -17,6 +21,8 @@ client.auto_paginate = true
 response = client.repository_workflow_runs(options[:repository], {:branch => options[:branch]})
 
 workflow_runs = response[:workflow_runs].select { |run| run[:name] == options[:name] }
+workflow_runs = workflow_runs.select { |run| run[:conclusion] == options[:conclusion] } if !options[:conclusion].empty?
+workflow_runs = workflow_runs.select { |run| run[:status] == options[:status] } if !options[:status].empty?
 
 last_build_sha_run = workflow_runs.max_by { |run| run[:run_number] }
 last_build_sha = last_build_sha_run[:head_sha]
