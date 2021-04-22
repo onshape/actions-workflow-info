@@ -31,8 +31,8 @@ if last_build_sha_run.nil?
   running_jobs_count = 0
 
   response = client.list_workflows(options[:repository])
-  workflow = response[:workflows].select { |workflow| workflow[:name] == options[:name] }
-  workflow_id = workflow[0][:id]
+  workflows = response[:workflows].select { |workflow| workflow[:name] == options[:name] }
+  workflow_id = workflows[0][:id]
 else
   last_build_sha = last_build_sha_run[:head_sha]
 
