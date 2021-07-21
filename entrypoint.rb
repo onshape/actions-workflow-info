@@ -28,6 +28,7 @@ last_build_sha_run = workflow_runs.max_by { |run| run[:run_number] }
 
 if last_build_sha_run.nil?
   last_build_sha = ""
+  last_build_run_number = 0
   running_jobs_count = 0
 
   response = client.list_workflows(options[:repository])
@@ -35,6 +36,7 @@ if last_build_sha_run.nil?
   workflow_id = workflows[0][:id]
 else
   last_build_sha = last_build_sha_run[:head_sha]
+  last_build_run_number = last_build_sha_run[:run_number]
 
   running_jobs = workflow_runs.select { |run| run[:status] != 'completed' }
   running_jobs_count = running_jobs.length()
@@ -43,5 +45,6 @@ else
 end
 
 puts "::set-output name=last-build-sha::#{last_build_sha}"
+puts "::set-output name=last-build-run-number::#{last_build_run_number}"
 puts "::set-output name=running-jobs-count::#{running_jobs_count}"
 puts "::set-output name=workflow-id::#{workflow_id}"
