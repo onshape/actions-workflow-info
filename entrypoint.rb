@@ -18,9 +18,7 @@ end.parse!
 client = Octokit::Client.new(:access_token => options[:token])
 client.auto_paginate = true
 
-response = client.repository_workflow_runs(options[:repository], {:branch => options[:branch]})
-
-workflow_runs = response[:workflow_runs].select { |run| run[:name] == options[:name] }
+workflow_runs = client.workflow_runs(options[:repository], "#{options[:name]}.yml", {:branch => options[:branch]})[:workflow_runs]
 workflow_runs = workflow_runs.select { |run| run[:conclusion] == options[:conclusion] } if !options[:conclusion].empty?
 workflow_runs = workflow_runs.select { |run| run[:status] == options[:status] } if !options[:status].empty?
 
