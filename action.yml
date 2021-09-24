@@ -19,6 +19,9 @@ inputs:
   status:
     description: 'status: queued, in_progress, or completed'
     default: ""
+  job-name:
+    description: 'if specified, return the "job-status" of that job in the most recent running workflow'
+    default: ""
 outputs:
   running-jobs-count:
     description: "The number of workflow jobs that are running on the specified branch."
@@ -42,3 +45,5 @@ runs:
     - ${{ inputs.conclusion }}
     - '--status'
     - ${{ inputs.status }}
+    - '--job-name'
+    - ${{ inputs.job-name }}
