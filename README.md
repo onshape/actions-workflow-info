@@ -45,3 +45,13 @@ with:
   repository: ${{ github.repository }}
   token: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+To test:
+
+You can put these lines like these in a script to easily test your changes. Put
+the GitHub PAT in a file named `.pat`. Do not commit either file.
+
+```shell
+docker build -t actions-workflow-info .
+docker run --rm actions-workflow-info "--job-name" "build-and-publish" "--name" "build-test-deploy" "--branch" "master" "--repository" "onshape/newton" "--token" $(cat .pat)
+```
