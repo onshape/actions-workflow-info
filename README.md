@@ -11,7 +11,7 @@ Provide information about the named workflow.
 
 ### `branch`
 
-**Required** The name of the branch for the workflow runs.
+**Required** The name of the branch for the workflow runs, use "*" for all branches
 
 ### `repository`
 
@@ -23,17 +23,28 @@ Provide information about the named workflow.
 
 ## Outputs
 
+### `last-build-run-number`
+
+The run number of the last build of the selected workflow runs.
+This includes completed runs.
+
 ### `last-build-sha`
 
-The git commit SHA of the last workflow run on the specified branch.
+The commit SHA of the last build of the selected workflow runs.
+
+### `running-workflows-count`
+
+The number of selected workflow runs that are running.
+This includes completed runs.
 
 ### `running-jobs-count`
 
-The number running workflows for the specfied workflow and branch.
+The number of jobs that are running (status != completed) on the selected
+workflow runs, filtered by job-name. 0 if job-name not specified.
 
 ### `workflow-id`
 
-The number id of the named workflow.
+The numeric id of the named workflow.
 
 ## Example usage
 

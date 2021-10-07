@@ -1,49 +1,67 @@
-name: 'Workflow Information'
-description: 'Return information about the named workflow on the specifed branch.'
+---
+
+name: Workflow Information
+description: >
+  Output information about the selected workflow and runs.
 inputs:
   name:
-    description: 'workflow name'
+    description: workflow name
     required: true
   branch:
-    description: 'branch name'
+    description: branch name, use "*" for all branches
     required: true
   repository:
-    description: 'repository name (owner/repo)'
+    description: repository name (owner/repo)
     required: true
   token:
-    description: 'token to use for API requests'
+    description: token to use for API requests
     required: true
   conclusion:
-    description: 'conclusion: action_required, cancelled, failure, neutral, success, skipped, stale, or timed_out'
-    default: ""
+    description: >
+      Output information with workflows filtered by the specified conclusion,
+      one of: action_required, cancelled, failure, neutral, success, skipped,
+      stale, or timed_out.
   status:
-    description: 'status: queued, in_progress, or completed'
-    default: ""
+    description: >
+      Output information with workflows filtered by status,
+      one of: queued, in_progress, or completed.
   job-name:
-    description: 'if specified, return the "job-status" of that job in the most recent running workflow'
-    default: ""
+    description: >
+      If specified, return the "running-jobs-count" of that job in the
+      selected workflow runs.
 outputs:
+  running-workflows-count:
+    description: >
+      The number of selected workflow runs that are running.
   running-jobs-count:
-    description: "The number of workflow jobs that are running on the specified branch."
+    description: >
+      The number of jobs that are running (status != completed) on the selected
+      workflow runs, filtered by job-name. 0 if job-name not specified.
+  last-build-run-number:
+    description: >
+      The run number of the last build of the selected workflow runs.
+      This includes completed runs.
   last-build-sha:
-    description: "The commit SHA of the most recent build of this workflow on the specified branch optionally filtered by status and conclusion"
+    description: >
+      The commit SHA of the last build of the selected workflow runs.
+      This includes completed runs.
   workflow-id:
-    description: "The id of the specifed workflow."
+    description: The id of the specifed workflow.
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: docker
+  image: Dockerfile
   args:
-    - '--name'
+    - --name
     - ${{ inputs.name }}
-    - '--branch'
+    - --branch
     - ${{ inputs.branch }}
-    - '--repository'
+    - --repository
     - ${{ inputs.repository }}
-    - '--token'
+    - --token
     - ${{ inputs.token }}
-    - '--conclusion'
+    - --conclusion
     - ${{ inputs.conclusion }}
-    - '--status'
+    - --status
     - ${{ inputs.status }}
-    - '--job-name'
+    - --job-name
     - ${{ inputs.job-name }}
