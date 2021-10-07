@@ -20,42 +20,77 @@ end.parse!
 client = Octokit::Client.new(:access_token => options[:token])
 client.auto_paginate = true
 
-workflow_runs = client.workflow_runs(options[:repository], "#{options[:name]}.yml", {:branch => options[:branch]})[:workflow_runs]
-workflow_runs = workflow_runs.select { |run| run[:conclusion] == options[:conclusion] } if !options[:conclusion].empty?
-workflow_runs = workflow_runs.select { |run| run[:status] == options[:status] } if !options[:status].empty?
+branch = options[:branch]
+repository = options[:repository]
+workflow_file = "#{options[:name]}.yml"
 
-last_build_sha_run = workflow_runs.max_by { |run| run[:run_number] }
+if branch == '*'
+  workflow_options = {}
+else
+  workflow_options = {:branch => branch}
+end
 
-job_status = ""
+workflow_runs = client.workflow_runs(repository,
+                                     workflow_file,
+                                     workflow_options)[:workflow_runs]
+
+if options[:conclusion] and !options[:conclusion].empty?
+  workflow_runs = workflow_runs.select do |run|
+    run[:conclusion] == options[:conclusion]
+  end
+end
+
+if options[:status] and !options[:status].empty?
+  workflow_runs = workflow_runs.select do |run|
+    run[:status] == options[:status]
+  end
+end
+
+last_build_sha_run = workflow_runs.max_by do |run|
+  run[:run_number]
+end
+
+running_jobs_count = 0
 
 if last_build_sha_run.nil?
+  # no runs matching filters
   last_build_sha = ""
   last_build_run_number = 0
-  running_jobs_count = 0
+  running_workflows_count = 0
 
-  response = client.list_workflows(options[:repository])
-  workflows = response[:workflows].select { |workflow| workflow[:name] == options[:name] }
+  response = client.list_workflows(repository)
+  workflows = response[:workflows].select do |workflow|
+    workflow[:name] == options[:name]
+  end
 
   workflow_id = workflows.length() > 0 ? workflows[0][:id] : ''
 else
   last_build_sha = last_build_sha_run[:head_sha]
   last_build_run_number = last_build_sha_run[:run_number]
 
-  running_jobs = workflow_runs.select { |run| run[:status] != 'completed' }
-  if running_jobs.length() > 0
-    specified_job = running_jobs[0].rels[:jobs].get.data[:jobs].select { |job|
-      job.name == options[:job_name] } if !options[:job_name].empty?
-    if specified_job and specified_job.length() > 0
-      job_status = specified_job[0].status
+  running_workflows = workflow_runs.select do |run|
+    run[:status] != 'completed'
+  end
+  running_workflows_count = running_workflows.length()
+
+  if running_workflows_count and options[:job_name] and !options[:job_name].empty?
+    running_workflows.each do |workflow|
+      selected_jobs = workflow.rels[:jobs].get.data[:jobs].select do |job|
+        job.name == options[:job_name]
+      end
+      if selected_jobs and selected_jobs.length() > 0
+        if selected_jobs[0].status != 'completed'
+          running_jobs_count += 1
+        end
+      end
     end
   end
-  running_jobs_count = running_jobs.length()
 
   workflow_id = workflow_runs.length() > 0 ? workflow_runs[0][:workflow_id] : ''
 end
 
 puts "::set-output name=last-build-sha::#{last_build_sha}"
 puts "::set-output name=last-build-run-number::#{last_build_run_number}"
-puts "::set-output name=running-jobs-count::#{running_jobs_count}"
+puts "::set-output name=running-workflows-count::#{running_workflows_count}"
 puts "::set-output name=workflow-id::#{workflow_id}"
-puts "::set-output name=job-status::#{job_status}"
+puts "::set-output name=running-jobs-count::#{running_jobs_count}"
