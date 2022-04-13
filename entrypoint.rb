@@ -24,15 +24,15 @@ branch = options[:branch]
 repository = options[:repository]
 workflow_file = "#{options[:name]}.yml"
 
-if branch == '*'
-  workflow_options = {}
-else
-  workflow_options = {:branch => branch}
-end
-
 workflow_runs = client.workflow_runs(repository,
                                      workflow_file,
-                                     workflow_options)[:workflow_runs]
+                                     {})[:workflow_runs]
+
+if branch != '*'
+  workflow_runs = workflow_runs.select do |run|
+    run[:head_branch] == options[:branch]
+  end
+end
 
 if options[:conclusion] and !options[:conclusion].empty?
   workflow_runs = workflow_runs.select do |run|
