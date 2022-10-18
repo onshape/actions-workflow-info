@@ -89,8 +89,10 @@ else
   workflow_id = workflow_runs.length() > 0 ? workflow_runs[0][:workflow_id] : ''
 end
 
-puts "::set-output name=last-build-sha::#{last_build_sha}"
-puts "::set-output name=last-build-run-number::#{last_build_run_number}"
-puts "::set-output name=running-workflows-count::#{running_workflows_count}"
-puts "::set-output name=workflow-id::#{workflow_id}"
-puts "::set-output name=running-jobs-count::#{running_jobs_count}"
+File.open(ENV['GITHUB_OUTPUT'], 'a') { |f|
+  f.puts "last-build-sha=#{last_build_sha}"
+  f.puts "last-build-run-number=#{last_build_run_number}"
+  f.puts "running-workflows-count=#{running_workflows_count}"
+  f.puts "workflow-id=#{workflow_id}"
+  f.puts "running-jobs-count=#{running_jobs_count}"
+}
